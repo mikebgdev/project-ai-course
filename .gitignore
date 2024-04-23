@@ -1,0 +1,24 @@
+.idea
+/output
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+.env
+
+# Logs
+*.log
+
+# Compiled python files
+/*.pyc
+
+# Environment variables
+/.env
+
+# Dependency directories
+env/
+lib/
+lib64/
