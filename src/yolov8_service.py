@@ -5,6 +5,7 @@ import datetime
 from collections import defaultdict
 
 from ultralytics import YOLO
+from ultralytics.solutions import object_counter
 from ultralytics.utils.plotting import Annotator, colors
 
 
@@ -60,6 +61,8 @@ class Yolov8Service:
         results = self.model.track(frame, conf=0.8, persist=True, verbose=False)
         boxes = results[0].boxes.xyxy.cpu()
         data_csv = None
+
+        print(results[0].boxes)
 
         if results[0].boxes.id is not None:
             clss = results[0].boxes.cls.cpu().tolist()

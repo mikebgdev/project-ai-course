@@ -12,7 +12,7 @@ class CSVManager:
     def open_csv_file(self, mode):
         return open(self.csv_filename, mode, encoding="utf-8", newline="")
 
-    def close_csv_file(self, csv_file):
+    def close_csv_file(self):
         self.csv_file.close()
 
     def writer_row_csv(self,data):
