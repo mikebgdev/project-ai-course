@@ -1,50 +1,65 @@
-# Proyecto IA
-## Cosas para fer
-### IA
-#### YOLO v8 o v9
-- :white_check_mark: Detectar personas
-- :white_check_mark: Recorrido que realizan
+# AI Project - Team Arch Btw
 
-#### Computer Vision
-- :white_check_mark: Timer de cuanto tiempo llevan en el sitio
-- Detección de emociones
-- :white_check_mark: Pixelar caras
-- Genero (Hombre o Mujer)
+## Final Project: Person Detection and Pixelation Application using YOLOv8n
 
+This project was developed as part of the Specialization Course in Artificial Intelligence and Big Data
 
-### Big Data
-#### Objetivo
+### Project Description
 
-uid | aparece | desaparece
-12  | 5131321 | 12312412
-123 | 1231451 | 12314123
-122 | 1231412 | 13145123
+The project aims to utilize the YOLOv8n model for detecting and tracking people in a video environment. Additionally, it
+implements face detection and pixelation to preserve the privacy of identified individuals.
 
-- Tiempo promedio: 50min
-- Hora mas concurrida: 18:00
+### Key Features
 
+- **Person Detection and Tracking:** Using the YOLOv8n model, the application can detect and track people in a real-time
+  video stream.
 
-### Despliegue / Presentación / ETC
-- :white_check_mark: Estaría bien hacer una web con el modelo, mejor que ejecutar un .py en local
-- :interrobang: Poder utilizar una feed de video web
+- **Face Pixelation:** Using the YOLOv8n-face model, the application automatically detects the faces of identified
+  individuals and applies a pixelation filter to protect their privacy.
 
+### Technologies Used
 
-## Roadmap
-##### IA
-1. :white_check_mark: Implementar la parte del YOLO para que detecte personas en vídeo
-2. :white_check_mark: Implementar la detección de cuanto tiempo pasan en escena (si se puede)
-3. :interrobang: Guardar los datos previos (Tratamiento de datos al final)
-4. Simultaneamente:
-    - :white_check_mark: Pixelar caras
-    - Detectar emociones
-    - :white_check_mark: Tracking
-5. :white_check_mark: Implementar el modelo en web (Como perros y gossos)
+- **YOLOv8n:** The YOLOv8n object detection model is utilized for identifying people in the video.
 
-##### Big Data
-1. Sacar y guardar más datos del vídeo
-2. Seguir pensando en base al apartado "Fumar droga"
+- **YOLOv8n-face:** The YOLOv8n-face object detection model is utilized for identifying people in the video.
 
-#### Fumar droga (invento)
-- Datos IA -> Redis -> Hadoop -> BBDD -> API
-- Hadoop a traves de API -> Insertar filas en CSV -> Visualizacion PowerBI
-- Poder detectar si una misma persona vuelve a pasar por el mismo sitio
+- **Python:** The project is primarily developed in Python, leveraging the available libraries and tools in this
+  language.
+
+- **Flask:** The application is designed for use with Flask, providing a web interface to view live detection and pixelation functionalities.
+
+### Usage Instructions
+
+1. Install the necessary dependencies:
+
+   ```console
+   pip install -r requirements.txt
+   ```
+
+2. Run the application local:
+
+   ```console
+   python app.py
+   ```
+
+3. Run the application with flask:
+
+   ```console
+   flask run
+   ```
+
+### Tasks Pending
+
+Task lists and roadmap: [Tasks](docs/Tasks.md)
+
+### Authors
+
+- Sergio Gimeno
+- Michael Ballester
+
+### References
+
+- YOLOv8n: [Link to the official repository](https://github.com/ultralytics/ultralytics)
+- YOLOv8n-faces [Link to the repository](https://github.com/akanametov/yolov8-face)
+- Python Documentation: [Official website](https://docs.python.org/3/)
+- Flask Documentation: [Official website](https://flask.palletsprojects.com/)
