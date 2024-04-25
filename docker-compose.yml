@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  web:
+    container_name: python-${PROJECT_NAME}
+    ports:
+      - ${HTTP_PORT}:5000
+    build:
+      context: .
+      dockerfile: Dockerfile

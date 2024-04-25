@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+    {% include 'includes/header.html' %}
+</head>
+
+<body>
+<h1>Detection and Track Persons</h1>
+<form id="video-source-form" class="container">
+    <div class="form-group">
+        <label>
+            <input type="radio" name="video-source" value="webcam" checked>
+            Use my own webcam
+        </label>
+    </div>
+    <div class="form-group">
+        <label>
+            <input type="radio" name="video-source" value="url">
+            Use a webcam by URL
+        </label>
+        <input type="text" id="url-input" class="form-control" placeholder="Enter the webcam URL">
+    </div>
+    <div class="form-group">
+        <label>
+            <input type="radio" name="video-source" value="youtube">
+            Use a YouTube video
+        </label>
+        <input type="text" id="youtube-input" class="form-control" placeholder="Enter the YouTube URL">
+    </div>
+    <button type="button" class="btn btn-primary" onclick="startVideo()">Start Video</button>
+</form>
+
+</body>
+</html>
