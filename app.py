@@ -6,9 +6,11 @@ from tools.dir_tools import create_dir
 from collections import defaultdict
 
 import cv2
+from sort import Sort
 import datetime
 from pytube import YouTube
 from ultralytics import YOLO
+from filterpy.kalman import KalmanFilter
 
 app = Flask(__name__)
 
@@ -33,12 +35,13 @@ output_dir = create_dir("output")
 # csv_manager_faces.writer_file_csv()
 
 # Init Models
-model = YOLO('models/yolov8n.onnx')
-model_face = YOLO('models/yolov8n-face.onnx')
+model = YOLO('models/yolov8n.pt')
+model_face = YOLO('models/yolov8n-face.pt')
 
 # Other Params
 cap = None
 blur_ratio = 50
+tracker = Sort()
 
 track_history_persons = defaultdict(lambda: [])  # TODO SAVE TO CSV or DATABASE
 track_history_persons_to_show = defaultdict(lambda: [])
@@ -49,6 +52,30 @@ data_frames_faces = defaultdict(lambda: [])  # TODO SAVE TO CSV or DATABASE
 detected_persons = {}
 detected_history_persons = defaultdict(lambda: [])  # TODO SAVE TO CSV or DATABASE
 
+
+
+# Inicialización del filtro de Kalman
+kf = KalmanFilter(dim_x=4, dim_z=2)
+kf.F = np.array([[1, 0, 1, 0],
+                 [0, 1, 0, 1],
+                 [0, 0, 1, 0],
+                 [0, 0, 0, 1]])  # Matriz de transición
+kf.H = np.array([[1, 0, 0, 0],
+                 [0, 1, 0, 0]])  # Matriz de observación
+kf.Q = np.eye(4) * 0.01  # Matriz de covarianza del proceso
+kf.R = np.eye(2) * 1  # Matriz de covarianza del ruido de la medición
+kf.x = np.zeros(4)  # Estado inicial
+kf.P = np.eye(4)  # Covarianza inicial
+
+# Función para predecir el estado futuro con el filtro de Kalman
+def predict(kf):
+    kf.predict()
+    return kf.x[:2]
+
+# Función para actualizar el estado del filtro de Kalman con una nueva detección
+def update(kf, measurement):
+    kf.update(measurement)
+    return kf.x[:2]
 
 def cap_start_video(type_video, video_url):
     global cap, track_history_persons, track_history_persons_to_show, detected_persons, data_frames_persons, data_frames_faces, detected_history_persons
@@ -76,6 +103,7 @@ def cap_start_video(type_video, video_url):
 
     data_frames_persons = defaultdict(lambda: [])
     data_frames_faces = defaultdict(lambda: [])
+    tracker = Sort()
 
     assert cap.isOpened(), "Error reading video file"
 
@@ -177,25 +205,45 @@ def save_data_frames_persons(track_id, conf, box):
 def detect_person_and_track(frame):
     results = model.track(frame, task='detect', persist=True, conf=0.6, verbose=False)
 
-    if results[0].boxes.id is not None:
-        boxes = results[0].boxes.xyxy.cpu()
-        clss = results[0].boxes.cls.cpu().tolist()
-        track_ids = results[0].boxes.id.int().cpu().tolist()
-        confs = results[0].boxes.conf.cpu().tolist()
+    for res in results:
+        if res.boxes.id is not None:
+            boxes = res.boxes.xyxy.cpu().numpy().astype(int)
+            clss = res.boxes.cls.cpu().tolist()
+            track_ids = res.boxes.id.int().cpu().tolist()
+            confs = res.boxes.conf.cpu().tolist()
 
-        for box, cls, track_id, conf in zip(boxes, clss, track_ids, confs):
-            if int(cls) == 0:
-                annotator = Annotator(frame, line_width=2)
-                create_label(annotator, track_id, box, cls)
+            tracks = tracker.update(boxes)
+            tracks = tracks.astype(int)
 
-                save_detected_person(track_id)
+            # for box, cls, track_id, conf in zip(boxes, clss, track_ids, confs):
+            for (xmin, ymin, xmax, ymax, track_id), (cls, conf) in zip(tracks, zip(clss, confs)):
+                if int(cls) == 0:
+                    annotator = Annotator(frame, line_width=2)
+                    create_label(annotator, track_id, [xmin, ymin, xmax, ymax], cls)
 
-                track = save_person_track_history(track_id, box)
-                show_person_track_history(frame, track, cls)
+                    # Utilizar el filtro de Kalman para predecir la posición de la persona
+                    prediction = predict(kf)
+                    prediction = tuple(map(int, prediction))
 
-                save_data_frames_persons(track_id, conf, box)
+                    # Dibujar la predicción en el fotograma
+                    cv2.circle(frame, prediction, 5, (0, 255, 0), -1)
 
-                check_person_visibility()
+                    # Actualizar el estado del filtro de Kalman con la nueva detección
+                    measurement = np.array(
+                        [xmin, ymin])  # Utilizar la esquina superior izquierda del cuadro delimitador como medición
+                    corrected_position = update(kf, measurement)
+
+                    # Dibujar la posición corregida en el fotograma
+                    cv2.circle(frame, tuple(map(int, corrected_position)), 5, (0, 0, 255), -1)
+
+                    save_detected_person(track_id)
+
+                    track = save_person_track_history(track_id, [xmin, ymin, xmax, ymax])
+                    show_person_track_history(frame, track, cls)
+
+                    save_data_frames_persons(track_id, conf, [xmin, ymin, xmax, ymax])
+
+                    check_person_visibility()
 
 
 def save_data_frames_faces(track_id, conf, box):
