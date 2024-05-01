@@ -1,8 +1,8 @@
+import os
 import numpy as np
 from flask import Flask, render_template, Response, request, redirect, url_for
 from ultralytics.utils.plotting import colors, Annotator
 
-from tools.dir_tools import create_dir
 from collections import defaultdict
 
 import cv2
@@ -10,29 +10,11 @@ from sort import Sort
 import datetime
 from pytube import YouTube
 from ultralytics import YOLO
-from filterpy.kalman import KalmanFilter
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
-# Prepare CSV TODO change with true headers and create function to create and save (one function)
-output_dir = create_dir("output")
-
-# csv_manager_static = CSVManager(output_dir + "detected_persons_static.csv")
-# csv_manager_frames = CSVManager(output_dir + "detected_persons_frames.csv")
-# csv_manager_faces = CSVManager(output_dir + "detected_persons_faces.csv")
-
-# header_static = ["UUID", "TrackID", "StartDate", "EndDate"]
-# header_frames = ["UUID", "TrackID", "Class", "Confidence", "Coordinates", "Date"]
-# header_faces = ["UUID", "Coordinates", "Date"]
-
-# csv_manager_static.create_file_csv(header_static)
-# csv_manager_frames.create_file_csv(header_frames)
-# csv_manager_faces.create_file_csv(header_faces)
-
-# Init Writers
-# csv_manager_static.writer_file_csv()
-# csv_manager_frames.writer_file_csv()
-# csv_manager_faces.writer_file_csv()
+load_dotenv()
 
 # Init Models
 model = YOLO('models/yolov8n.pt')
@@ -43,42 +25,13 @@ cap = None
 blur_ratio = 50
 tracker = Sort()
 
-track_history_persons = defaultdict(lambda: [])  # TODO SAVE TO CSV or DATABASE
+# Array Params
 track_history_persons_to_show = defaultdict(lambda: [])
+detected_persons_to_show = defaultdict(lambda: [])
 
-data_frames_persons = defaultdict(lambda: [])  # TODO SAVE TO CSV or DATABASE
-data_frames_faces = defaultdict(lambda: [])  # TODO SAVE TO CSV or DATABASE
-
-detected_persons = {}
-detected_history_persons = defaultdict(lambda: [])  # TODO SAVE TO CSV or DATABASE
-
-
-
-# Inicialización del filtro de Kalman
-kf = KalmanFilter(dim_x=4, dim_z=2)
-kf.F = np.array([[1, 0, 1, 0],
-                 [0, 1, 0, 1],
-                 [0, 0, 1, 0],
-                 [0, 0, 0, 1]])  # Matriz de transición
-kf.H = np.array([[1, 0, 0, 0],
-                 [0, 1, 0, 0]])  # Matriz de observación
-kf.Q = np.eye(4) * 0.01  # Matriz de covarianza del proceso
-kf.R = np.eye(2) * 1  # Matriz de covarianza del ruido de la medición
-kf.x = np.zeros(4)  # Estado inicial
-kf.P = np.eye(4)  # Covarianza inicial
-
-# Función para predecir el estado futuro con el filtro de Kalman
-def predict(kf):
-    kf.predict()
-    return kf.x[:2]
-
-# Función para actualizar el estado del filtro de Kalman con una nueva detección
-def update(kf, measurement):
-    kf.update(measurement)
-    return kf.x[:2]
 
 def cap_start_video(type_video, video_url):
-    global cap, track_history_persons, track_history_persons_to_show, detected_persons, data_frames_persons, data_frames_faces, detected_history_persons
+    global cap, track_history_persons_to_show, detected_persons_to_show
 
     # TODO webcam url
     if type_video == "youtube":
@@ -90,19 +43,18 @@ def cap_start_video(type_video, video_url):
     else:
         url = 0
 
+    video_url = os.getenv("VIDEO")
+    video = YouTube(video_url)
+    stream = video.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
+    url = stream.url
     cap = cv2.VideoCapture(url)
 
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
-    track_history_persons = defaultdict(lambda: [])
     track_history_persons_to_show = defaultdict(lambda: [])
+    detected_persons_to_show = defaultdict(lambda: [])
 
-    detected_persons = {}
-    detected_history_persons = defaultdict(lambda: [])
-
-    data_frames_persons = defaultdict(lambda: [])
-    data_frames_faces = defaultdict(lambda: [])
     tracker = Sort()
 
     assert cap.isOpened(), "Error reading video file"
@@ -111,20 +63,17 @@ def cap_start_video(type_video, video_url):
 def cap_stop_video():
     global cap
 
-    # TODO SAVE THERE CSV OR DATABASE
+    finish_person_visibility()
 
     if cap:
         cap.release()
 
     cv2.destroyAllWindows()
-    # csv_manager_static.close_csv_file()
-    # csv_manager_frames.close_csv_file()
-    # csv_manager_faces.close_csv_file()
 
 
 def get_time_on_screen(track_id):
-    if track_id in detected_persons:
-        time_on_screen = datetime.datetime.now() - detected_persons[track_id]
+    if track_id in detected_persons_to_show:
+        time_on_screen = datetime.datetime.now() - detected_persons_to_show[track_id]
         hours, remainder = divmod(time_on_screen.seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
         return "{:02}:{:02}:{:02}".format(hours, minutes, seconds)
@@ -138,23 +87,32 @@ def create_label(annotator, track_id, box, cls):
 
 
 def save_detected_person(track_id):
-    if track_id not in detected_persons:
-        detected_persons[track_id] = datetime.datetime.now()
+    if track_id not in detected_persons_to_show:
+        detected_persons_to_show[track_id] = datetime.datetime.now()
 
 
-def save_person_track_history(track_id, box):
-    if track_id not in track_history_persons:
-        track_history_persons[track_id] = []
+def save_track_history_database(track_id, conf, box):
+    # TODO RabbitMQ
+    data = {
+        "track_id": track_id,
+        "conf": conf,
+        "cord_x": int((box[0] + box[2]) / 2),
+        "cord_y": int((box[1] + box[3]) / 2)
+    }
+
+
+def save_person_track_history(track_id, conf, box):
+    if track_id not in track_history_persons_to_show:
         track_history_persons_to_show[track_id] = []
 
-    track = track_history_persons[track_id]
     track_to_show = track_history_persons_to_show[track_id]
 
-    track.append((int((box[0] + box[2]) / 2), int((box[1] + box[3]) / 2)))
     track_to_show.append((int((box[0] + box[2]) / 2), int((box[1] + box[3]) / 2)))
 
-    if len(track) > 30:
+    if len(track_to_show) > 30:
         track_to_show.pop(0)
+
+    save_track_history_database(track_id, conf, box)
 
     return track_to_show
 
@@ -165,96 +123,100 @@ def show_person_track_history(frame, track, cls):
     cv2.polylines(frame, [points], isClosed=False, color=colors(int(cls), True), thickness=2)
 
 
+def save_person_database(track_id, start_time):
+    end_time = datetime.datetime.now()
+
+    # TODO RabbitMq
+    data = {
+        "track_id": track_id,
+        "start_time": start_time.timestamp(),
+        "end_time": end_time.timestamp()
+    }
+
+
 def check_person_visibility():
-    for track_id, start_time in detected_persons.items():
+    for track_id, start_time in detected_persons_to_show.items():
         if track_id not in track_history_persons_to_show:
-            end_time = datetime.datetime.now()
-            detected_history_persons[track_id].append(
-                [
-                    start_time.timestamp(),
-                    end_time.timestamp()
-                ]
-            )
-            del detected_persons[track_id]
+            save_person_database(track_id, start_time)
+            del detected_persons_to_show[track_id]
 
 
 def finish_person_visibility():
-    for track_id, start_time in detected_persons.items():
-        end_time = datetime.datetime.now()
-        detected_history_persons[track_id].append(
-            [
-                start_time.timestamp(),
-                end_time.timestamp()
-            ]
-        )
+    for track_id, start_time in detected_persons_to_show.items():
+        save_person_database(track_id, start_time)
 
 
-def save_data_frames_persons(track_id, conf, box):
-    if track_id not in data_frames_persons:
-        data_frames_persons[track_id] = []
+def calculate_velocity(track_id):
+    track_history = track_history_persons_to_show.get(track_id, [])
 
-    data_frames_persons[track_id].append(
-        [
-            conf,
-            box,
-            datetime.datetime.now().timestamp()
-        ]
-    )
+    if len(track_history) < 2:
+        return (0, 0)
+
+    last_position = track_history[-1]
+    second_last_position = track_history[-2]
+
+    delta_x = last_position[0] - second_last_position[0]
+    delta_y = last_position[1] - second_last_position[1]
+
+    velocity_x = delta_x / 1
+    velocity_y = delta_y / 1
+
+    return (velocity_x, velocity_y)
+
+
+def generate_predicted_track(point, estimated_velocity):
+    x, y = point[0], point[1]
+
+    predicted_track = []
+
+    for i in range(10):
+        predicted_x = x + estimated_velocity[0]
+        predicted_y = y + estimated_velocity[1]
+        predicted_track.append(
+            (int(predicted_x), int(predicted_y)))
+
+        x, y = predicted_x, predicted_y
+
+    return predicted_track
+
+
+def show_person_predicted_track(frame, predictions):
+    predicted_points = np.array(predictions, dtype=np.int32).reshape((-1, 1, 2))
+    cv2.polylines(frame, [predicted_points], isClosed=False, color=(0, 255, 0), thickness=2,
+                  lineType=cv2.LINE_AA)
+    cv2.circle(frame, predictions[-1], 7, (0, 255, 0), -1)
 
 
 def detect_person_and_track(frame):
-    results = model.track(frame, task='detect', persist=True, conf=0.6, verbose=False)
+    results = model.track(frame, persist=True, conf=0.6, verbose=False)
 
     for res in results:
         if res.boxes.id is not None:
             boxes = res.boxes.xyxy.cpu().numpy().astype(int)
             clss = res.boxes.cls.cpu().tolist()
-            track_ids = res.boxes.id.int().cpu().tolist()
             confs = res.boxes.conf.cpu().tolist()
 
             tracks = tracker.update(boxes)
             tracks = tracks.astype(int)
 
-            # for box, cls, track_id, conf in zip(boxes, clss, track_ids, confs):
             for (xmin, ymin, xmax, ymax, track_id), (cls, conf) in zip(tracks, zip(clss, confs)):
                 if int(cls) == 0:
                     annotator = Annotator(frame, line_width=2)
                     create_label(annotator, track_id, [xmin, ymin, xmax, ymax], cls)
 
-                    # Utilizar el filtro de Kalman para predecir la posición de la persona
-                    prediction = predict(kf)
-                    prediction = tuple(map(int, prediction))
-
-                    # Dibujar la predicción en el fotograma
-                    cv2.circle(frame, prediction, 5, (0, 255, 0), -1)
-
-                    # Actualizar el estado del filtro de Kalman con la nueva detección
-                    measurement = np.array(
-                        [xmin, ymin])  # Utilizar la esquina superior izquierda del cuadro delimitador como medición
-                    corrected_position = update(kf, measurement)
-
-                    # Dibujar la posición corregida en el fotograma
-                    cv2.circle(frame, tuple(map(int, corrected_position)), 5, (0, 0, 255), -1)
-
+                    check_person_visibility()
                     save_detected_person(track_id)
 
-                    track = save_person_track_history(track_id, [xmin, ymin, xmax, ymax])
+                    # Track
+                    track = save_person_track_history(track_id, conf, [xmin, ymin, xmax, ymax])
                     show_person_track_history(frame, track, cls)
 
-                    save_data_frames_persons(track_id, conf, [xmin, ymin, xmax, ymax])
+                    # Predict Track
+                    estimated_velocity = calculate_velocity(track_id)
+                    point = track[-1]
 
-                    check_person_visibility()
-
-
-def save_data_frames_faces(track_id, conf, box):
-    face = data_frames_faces[track_id]
-    face.append(
-        [
-            conf,
-            box,
-            datetime.datetime.now().timestamp()
-        ]
-    )
+                    predicted_track = generate_predicted_track(point, estimated_velocity)
+                    show_person_predicted_track(frame, predicted_track)
 
 
 def detect_faces_and_blur(frame):
@@ -269,11 +231,6 @@ def detect_faces_and_blur(frame):
 
         frame[int(box[1]):int(box[3]), int(box[0]):int(box[2])] = blur_obj
 
-        if results[0].boxes.id is not None:
-            track_ids = results[0].boxes.id.int().cpu().tolist()
-            for track_id in zip(track_ids):
-                save_data_frames_faces(track_id, conf, box)
-
 
 def generate_frames():
     global cap
@@ -283,8 +240,9 @@ def generate_frames():
             success, frame = cap.read()
 
             if not success:
-                print("No se ha podido leer el frame, Hemos llegado al final? Saliendo...")
-                stop_video()
+                print("Se terminaron los frames")
+                finish_person_visibility()
+                cap_stop_video()
                 break
 
             detect_faces_and_blur(frame)
@@ -298,7 +256,7 @@ def generate_frames():
 
 def format_detected_persons():
     formatted_persons = []
-    for key, value in detected_persons.items():
+    for key, value in detected_persons_to_show.items():
         formatted_date = value.strftime("%H:%M:%S")
         formatted_person = f"Person {key} - Date: {formatted_date} <br>"
         formatted_persons.append(formatted_person)
