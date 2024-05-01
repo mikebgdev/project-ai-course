@@ -7,6 +7,12 @@ h1 {
 }
 
 
+#video-source-form {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+
 #video-container {
     text-align: center;
     margin-bottom: 20px;

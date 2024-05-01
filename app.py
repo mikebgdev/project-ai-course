@@ -30,18 +30,8 @@ track_history_persons_to_show = defaultdict(lambda: [])
 detected_persons_to_show = defaultdict(lambda: [])
 
 
-def cap_start_video(type_video, video_url):
+def cap_start_video():
     global cap, track_history_persons_to_show, detected_persons_to_show
-
-    # TODO webcam url
-    if type_video == "youtube":
-        video = YouTube(video_url)
-        stream = video.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
-        url = stream.url
-    elif type_video == "stream":
-        url = "http://elecam:$urfw3B!@wc1.marinavalencia.com/ISAPI/Streaming/channels/102/httpPreview"
-    else:
-        url = 0
 
     video_url = os.getenv("VIDEO")
     video = YouTube(video_url)
@@ -274,11 +264,9 @@ def video():
     return render_template('video.html')
 
 
-@app.route('/start_video', methods=['POST'])
+@app.route('/start_video', methods=['GET'])
 def start_video():
-    type = request.json['type']
-    video_url = request.json['video_url']
-    cap_start_video(type, video_url)
+    cap_start_video()
     return redirect(url_for('video'))
 
 
