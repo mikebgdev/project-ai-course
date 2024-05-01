@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="es">
+<head>
+    {% include 'includes/header.html' %}
+</head>
+
+<body>
+<h1>Detection and Track Persons</h1>
+<form id="video-source-form" class="container" action="{{ url_for('start_video') }}" method="get">
+    <button type="submit" class="btn btn-primary">Start Video</button>
+</form>
+
+</body>
+</html>

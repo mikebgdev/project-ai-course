@@ -1,0 +1,106 @@
+name: python-project-build
+kind: pipeline
+type: docker
+
+trigger:
+    event:
+        - push
+        - pull_request
+
+platform:
+    os: linux
+    arch: amd64
+
+clone:
+    disable: true
+
+steps:
+  - name: clone
+    image: plugins/git
+    settings:
+      depth: 50
+
+  - name: install-dependencies
+    image: python:3.11.2
+    commands:
+      - pip install -r requirements.txt
+
+
+---
+
+name: python-project-promote
+kind: pipeline
+type: docker
+
+trigger:
+    event:
+        - promote
+
+steps:
+
+    - name: scp_files
+      image: appleboy/drone-scp
+      settings:
+          host:
+              from_secret: docker_host
+          username:
+              from_secret: username_ssh
+          password:
+              from_secret: password_ssh
+          port: 22
+          target: /var/www/${DRONE_REPO_NAME}-${DRONE_DEPLOY_TO}
+          source: .
+
+    -   name: deployment
+        image: appleboy/drone-ssh
+        when:
+            target:
+                - deployment
+        settings:
+            host:
+                from_secret: docker_host
+            username:
+                from_secret: username_ssh
+            password:
+                from_secret: password_ssh
+            script:
+                - |
+                    if [ ! -d "/var/www/${DRONE_REPO_NAME}-${DRONE_DEPLOY_TO}" ]; then
+                        git clone https://${GITHUB_TOKEN}@github.com/${DRONE_REPO} /var/www/${DRONE_REPO_NAME}-${DRONE_DEPLOY_TO}
+                    fi
+                - cd /var/www/${DRONE_REPO_NAME}-${DRONE_DEPLOY_TO}
+                - git fetch
+                - git reset --hard origin/${DRONE_BRANCH}
+                - git checkout ${DRONE_BRANCH}
+                - git pull origin ${DRONE_BRANCH}
+                - docker compose -f docker-compose.dev.yml build
+                - docker compose -f docker-compose.dev.yml down
+                - docker compose -f docker-compose.dev.yml up -d --force-recreate
+
+    -   name: production
+        image: appleboy/drone-ssh
+        when:
+            target:
+                - production
+        settings:
+            host:
+                from_secret: docker_host
+            username:
+                from_secret: username_ssh
+            password:
+                from_secret: password_ssh
+            port: 22
+            command_timeout: 2m
+            script:
+                - |
+                    if [ ! -d "/var/www/${DRONE_REPO_NAME}-${DRONE_DEPLOY_TO}" ]; then
+                        git clone https://${GITHUB_TOKEN}@github.com/${DRONE_REPO} /var/www/${DRONE_REPO_NAME}-${DRONE_DEPLOY_TO}
+                    fi
+                - cd /var/www/${DRONE_REPO_NAME}-${DRONE_DEPLOY_TO}
+                - git fetch
+                - git reset --hard origin/${DRONE_BRANCH}
+                - git checkout ${DRONE_BRANCH}
+                - git pull origin ${DRONE_BRANCH}
+                - docker compose build
+                - docker compose down
+                - docker compose up -d --force-recreate
