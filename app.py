@@ -13,8 +13,7 @@ from ultralytics import YOLO
 from dotenv import load_dotenv
 
 import pika
-import json
-
+import streamlink
 
 app = Flask(__name__)
 
@@ -33,23 +32,38 @@ tracker = Sort()
 track_history_persons_to_show = defaultdict(lambda: [])
 detected_persons_to_show = defaultdict(lambda: [])
 
+
 def send_data_to_queue(data, queue_name):
-    credentials = pika.PlainCredentials(os.getenv("USER"), os.getenv("PASSWORD"))
-    connection = pika.BlockingConnection(pika.ConnectionParameters(os.getenv("localhost"), os.getenv("5672"), credentials=credentials))
-    channel = connection.channel()
+    try:
+        credentials = pika.PlainCredentials(os.getenv("USER"), os.getenv("PASSWORD"))
+        connection = pika.BlockingConnection(
+            pika.ConnectionParameters(os.getenv("RABBIT_HOST"), os.getenv("RABBIT_PORT"), credentials=credentials))
+        channel = connection.channel()
 
-    channel.queue_declare(queue=queue_name)
-    channel.basic_publish(exchange='', routing_key=queue_name, body=data)
+        channel.queue_declare(queue=queue_name)
+        channel.basic_publish(exchange='', routing_key=queue_name, body=data)
 
-    connection.close()
+        connection.close()
+    except Exception as e:
+        print("Error al enviar datos a la cola:", e)
+
 
 def cap_start_video():
     global cap, track_history_persons_to_show, detected_persons_to_show
 
-    video_url = os.getenv("VIDEO")
-    video = YouTube(video_url)
-    stream = video.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
-    url = stream.url
+    # LIVE YOUTUBE
+    live_video_url = os.getenv("VIDEO_LIVE")
+    streams = streamlink.streams(live_video_url)
+    url = streams["best"].url
+
+    # VIDEO YOUTUBE
+    # video_url = os.getenv("VIDEO")
+    # video = YouTube(video_url)
+    #
+    # stream = video.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
+
+    # url = stream.url
+
     cap = cv2.VideoCapture(url)
 
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
@@ -102,9 +116,7 @@ def save_track_history_database(track_id, conf, box):
         "cord_y": int((box[1] + box[3]) / 2)
     }
 
-    detected_person_json = json.dumps(data)
-
-    send_data_to_queue(detected_person_json, 'track_histrory')
+    send_data_to_queue(data, 'track_histrory')
 
 
 def save_person_track_history(track_id, conf, box):
@@ -137,10 +149,7 @@ def save_person_database(track_id, start_time):
         "start_time": start_time.timestamp(),
         "end_time": end_time.timestamp()
     }
-
-    detected_person_json = json.dumps(data)
-
-    send_data_to_queue(detected_person_json, 'detected_persons')
+    send_data_to_queue(data, 'detected_persons')
 
 
 def check_person_visibility():
