@@ -12,6 +12,10 @@ from pytube import YouTube
 from ultralytics import YOLO
 from dotenv import load_dotenv
 
+import pika
+import json
+
+
 app = Flask(__name__)
 
 load_dotenv()
@@ -29,6 +33,15 @@ tracker = Sort()
 track_history_persons_to_show = defaultdict(lambda: [])
 detected_persons_to_show = defaultdict(lambda: [])
 
+def send_data_to_queue(data, queue_name):
+    credentials = pika.PlainCredentials(os.getenv("USER"), os.getenv("PASSWORD"))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(os.getenv("localhost"), os.getenv("5672"), credentials=credentials))
+    channel = connection.channel()
+
+    channel.queue_declare(queue=queue_name)
+    channel.basic_publish(exchange='', routing_key=queue_name, body=data)
+
+    connection.close()
 
 def cap_start_video():
     global cap, track_history_persons_to_show, detected_persons_to_show
@@ -82,13 +95,16 @@ def save_detected_person(track_id):
 
 
 def save_track_history_database(track_id, conf, box):
-    # TODO RabbitMQ
     data = {
         "track_id": track_id,
         "conf": conf,
         "cord_x": int((box[0] + box[2]) / 2),
         "cord_y": int((box[1] + box[3]) / 2)
     }
+
+    detected_person_json = json.dumps(data)
+
+    send_data_to_queue(detected_person_json, 'track_histrory')
 
 
 def save_person_track_history(track_id, conf, box):
@@ -116,12 +132,15 @@ def show_person_track_history(frame, track, cls):
 def save_person_database(track_id, start_time):
     end_time = datetime.datetime.now()
 
-    # TODO RabbitMq
     data = {
         "track_id": track_id,
         "start_time": start_time.timestamp(),
         "end_time": end_time.timestamp()
     }
+
+    detected_person_json = json.dumps(data)
+
+    send_data_to_queue(detected_person_json, 'detected_persons')
 
 
 def check_person_visibility():
