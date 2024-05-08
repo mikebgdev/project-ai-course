@@ -1,27 +1,22 @@
-.idea
-/output
-
-# Python cache files
-__pycache__/
-*.pyc
-
-# Virtual environment
-venv/
-.env
-
-# Logs
-*.log
-
 # Compiled python files
-/*.pyc
-
-# Environment variables
-/.env
-
 # Dependency directories
+# Environment variables
+# Logs
+# Python cache files
+# Reflex
+# Virtual environment
+*.db
+*.log
+*.py[cod]
+*.pyc
+.env
+.idea
+.web
+/*.pyc
+/.env
+/output
+__pycache__/
 env/
 lib/
 lib64/
-
-# Reflex
-.web
+venv/

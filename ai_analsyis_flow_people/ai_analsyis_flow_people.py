@@ -18,6 +18,7 @@ from ai_analsyis_flow_people.pages.documentation import documentation
 app = rx.App(
     theme=THEME,
     stylesheets=STYLESHEETS,
+    # heigth="100vh"
 )
 
 app.add_page(index, route="/")

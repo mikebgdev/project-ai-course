@@ -41,7 +41,7 @@ def sidebar(
             rx.heading(
                 heading,
                 font_family=FONT_FAMILY,
-                size="5",
+                size="7",
             ),
             width="100%",
             spacing="7",
@@ -59,7 +59,7 @@ def sidebar(
         align_items="left",
         z_index="10",
         backdrop_filter="blur(10px)",
-        padding="1em",
+        padding="2em",
     )
 
 
@@ -72,7 +72,7 @@ dashboard_sidebar = sidebar(
     sidebar_link(text="Dashboard BigData", href="/bigdata", icon="layout-dashboard"),
     sidebar_link(text="Documentation", href="/documentation", icon="book-check"),
     logo_src="/favicon.ico",
-    heading="AI Project",
+    heading="Project",
 )
 
 
