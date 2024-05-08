@@ -13,6 +13,7 @@ from ultralytics import YOLO
 from dotenv import load_dotenv
 
 import pika
+import json
 import streamlink
 
 app = Flask(__name__)
@@ -35,7 +36,7 @@ detected_persons_to_show = defaultdict(lambda: [])
 
 def send_data_to_queue(data, queue_name):
     try:
-        credentials = pika.PlainCredentials(os.getenv("USER"), os.getenv("PASSWORD"))
+        credentials = pika.PlainCredentials(os.getenv("RABBIT_USER"), os.getenv("PASSWORD"))
         connection = pika.BlockingConnection(
             pika.ConnectionParameters(os.getenv("RABBIT_HOST"), os.getenv("RABBIT_PORT"), credentials=credentials))
         channel = connection.channel()
@@ -45,24 +46,24 @@ def send_data_to_queue(data, queue_name):
 
         connection.close()
     except Exception as e:
-        print("Error al enviar datos a la cola:", e)
+        print(f"Error al enviar datos a la cola {queue_name}:", e)
 
 
 def cap_start_video():
     global cap, track_history_persons_to_show, detected_persons_to_show
 
     # LIVE YOUTUBE
-    live_video_url = os.getenv("VIDEO_LIVE")
-    streams = streamlink.streams(live_video_url)
-    url = streams["best"].url
+    # live_video_url = os.getenv("VIDEO_LIVE")
+    # streams = streamlink.streams(live_video_url)
+    # url = streams["best"].url
 
     # VIDEO YOUTUBE
-    # video_url = os.getenv("VIDEO")
-    # video = YouTube(video_url)
-    #
-    # stream = video.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
+    video_url = os.getenv("VIDEO")
+    video = YouTube(video_url)
 
-    # url = stream.url
+    stream = video.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
+
+    url = stream.url
 
     cap = cv2.VideoCapture(url)
 
@@ -110,13 +111,15 @@ def save_detected_person(track_id):
 
 def save_track_history_database(track_id, conf, box):
     data = {
-        "track_id": track_id,
+        "track_id": track_id.item(),
         "conf": conf,
         "cord_x": int((box[0] + box[2]) / 2),
         "cord_y": int((box[1] + box[3]) / 2)
     }
 
-    send_data_to_queue(data, 'track_histrory')
+    data = json.dumps(data)
+
+    send_data_to_queue(data, 'track_history')
 
 
 def save_person_track_history(track_id, conf, box):
