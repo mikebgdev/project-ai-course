@@ -148,10 +148,13 @@ def save_person_database(track_id, start_time):
     end_time = datetime.datetime.now()
 
     data = {
-        "track_id": track_id,
+        "track_id": track_id.item(),
         "start_time": start_time.timestamp(),
         "end_time": end_time.timestamp()
     }
+
+    data = json.dumps(data)
+
     send_data_to_queue(data, 'detected_persons')
 
 
