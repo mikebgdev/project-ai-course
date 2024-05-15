@@ -1,83 +1,67 @@
 import reflex as rx
-import cv2
-import streamlink
 
 from ai_analsyis_flow_people.navigation import navbar
 from ai_analsyis_flow_people.template import template
-from ai_analsyis_flow_people.constants import blur_ratio, model_face, live_video_url
+# from ai_analsyis_flow_people.constants import blur_ratio, model_face, live_video_url
+
+import subprocess
+
+websocket_process = None
 
 
-def init_video():
-    streams = streamlink.streams(live_video_url)
-    url = streams["best"].url
 
-    cap = cv2.VideoCapture(url)
+def start_detection():
+    global websocket_process
 
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-
-    assert cap.isOpened(), "Error reading video file"
-
-    return cap
+    if not is_websocket_running():
+        websocket_process = subprocess.Popen(['python', 'ai_analsyis_flow_people/utils/websocket_server.py'])
+        return rx.console_log("Detección iniciada")
+    else:
+        return rx.console_log("El WebSocket ya está iniciado")
 
 
-def detect_faces_and_blur(frame):
-    results = model_face.track(frame, task='detect', conf=0.3, verbose=False)
+def stop_detection():
+    global websocket_process
 
-    boxes = results[0].boxes.xyxy.cpu()
-    confs = results[0].boxes.conf.cpu().tolist()
-
-    for box, conf in zip(boxes, confs):
-        face = frame[int(box[1]):int(box[3]), int(box[0]):int(box[2])]
-        blur_obj = cv2.blur(face, (blur_ratio, blur_ratio))
-
-        frame[int(box[1]):int(box[3]), int(box[0]):int(box[2])] = blur_obj
+    if is_websocket_running():
+        websocket_process.terminate()
+        websocket_process.wait()
+        return rx.console_log("Detección detenida")
+    else:
+        return rx.console_log("El WebSocket no está iniciado")
 
 
-def generate_frames():
-    cap = init_video()
+def is_websocket_running():
+    global websocket_process
 
-    if cap:
-        while cap.isOpened():
-            success, frame = cap.read()
-
-            if not success:
-                print("Se terminaron los frames")
-                # finish_person_visibility()
-                # cap_stop_video()
-                break
-
-            detect_faces_and_blur(frame)
-            # detect_person_and_track(frame)
-
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-            return rx.obs.image(b'--frame\r\n'
-                                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+    return websocket_process is not None and websocket_process.poll() is None
 
 
-def content_video():
-    return rx.video(
-        url=live_video_url,
-        width="640px",
-        height="auto",
-    )
-    # return rx.box(
-    #     generate_frames(),
-    #     width=640,
-    #     height=480
-    # )
-
+class ExternalJSState(rx.State):
+    @rx.background
+    async def call_external_js(self, fuction):
+        return rx.call_script(fuction)
 
 @template
 def camera() -> rx.Component:
     return rx.box(
         navbar(heading="Live Camera"),
-            rx.box(
-                content_video(),
-                margin_top="calc(50px + 2em)",
-                padding="2em",
+        rx.box(
+            rx.hstack(
+                rx.button("Start WebScoket", on_click=start_detection),
+                rx.button("Start Detection", on_click=ExternalJSState.call_external_js("start_detection()")),
+                # rx.button("Start Detection", id="start", on_click=start_detection),
+                rx.button("Stop Detection", on_click=stop_detection),
             ),
+            rx.container(
+                rx.image(id="video", width="640", height="480"),
+                id="video-feed",
+
+            ),
+            rx.script(src="/static/video_script.js"),
+            margin_top="calc(50px + 2em)",
+            padding="2em",
+        ),
         padding_left="250px",
         # height="100vh"
     )
