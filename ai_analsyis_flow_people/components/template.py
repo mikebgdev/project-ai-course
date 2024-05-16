@@ -12,5 +12,4 @@ def template(page: Callable[[], rx.Component]) -> rx.Component:
         page(),
         background_color=BACKGROUND_COLOR,
         font_family=FONT_FAMILY,
-        height="100vh"
     )

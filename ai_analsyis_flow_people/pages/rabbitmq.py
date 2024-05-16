@@ -62,9 +62,11 @@ def rabbitmq() -> rx.Component:
         navbar(heading="Dashboard RabbitMq"),
         rx.box(
             content_grid(),
-            margin_top="calc(50px + 2em)",
             padding="2em",
+            min_height="calc(100vh - calc(50px + 2em))",
+            background_color=rx.color("mauve", 2),
         ),
+        padding_top="calc(50px + 2em)",
         padding_left="250px",
         on_mount=DashboardRabbitMqState.update_metrics,
     )
