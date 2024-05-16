@@ -8,27 +8,38 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-  rabbit:
-      image: rabbitmq:3-management
-      container_name: rabbit
-      environment:
-        RABBITMQ_DEFAULT_USER: user
-        RABBITMQ_DEFAULT_PASS: archbtw
-      ports:
-        - "15672:15672"
-        - "5672:5672"
-      networks:
-        - rabbitnet
+
   nifi:
-      image: apache/nifi:latest
-      container_name: nifi
-      environment:
-        SINGLE_USER_CREDENTIALS_USERNAME: admin
-        SINGLE_USER_CREDENTIALS_PASSWORD: ctsBtRBKHRAx69EqUghvvgEvjnaLjFEB
-      ports:
-        - "8443:8443"
-      networks:
-        - rabbitnet
+    image: apache/nifi:latest
+    container_name: nifi
+    networks:
+      - rabbitnet
+    ports:
+      - "8443:8443"
+    environment:
+      - SINGLE_USER_CREDENTIALS_USERNAME=admin
+      - SINGLE_USER_CREDENTIALS_PASSWORD=ctsBtRBKHRAx69EqUghvvgEvjnaLjFEB
+
+  rabbit:
+    image: rabbitmq:3-management
+    container_name: rabbit
+    networks:
+      - rabbitnet
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=archbtw
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    networks:
+      - rabbitnet
+    ports:
+      - "27017:27017"
 
 networks:
   rabbitnet:
+    driver: bridge
