@@ -1,7 +1,6 @@
 import reflex as rx
-from reflex.components import lucide
 
-from ai_analsyis_flow_people.styles import FONT_FAMILY
+from ai_analsyis_flow_people.components.styles import FONT_FAMILY
 
 
 def sidebar_link(text: str, href: str, icon: str):

@@ -1,10 +1,6 @@
-"""The main Dashboard App."""
-
-from rxconfig import config
-
 import reflex as rx
 
-from ai_analsyis_flow_people.styles import BACKGROUND_COLOR, FONT_FAMILY, THEME, STYLESHEETS
+from ai_analsyis_flow_people.components.styles import THEME, STYLESHEETS
 
 from ai_analsyis_flow_people.pages.index import index
 from ai_analsyis_flow_people.pages.camera import camera

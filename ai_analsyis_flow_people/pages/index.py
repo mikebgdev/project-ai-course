@@ -1,65 +1,40 @@
-"""The main index page."""
-
 import reflex as rx
-from ai_analsyis_flow_people.data import (
-    line_chart_data,
-    lines,
-    pie_chart_data,
-    area_chart_data,
-    areas,
-    stat_card_data,
-    tabular_data,
-)
-from ai_analsyis_flow_people.graphs import (
-    area_chart,
-    line_chart,
-    pie_chart,
-    stat_card,
-    table,
-)
-from ai_analsyis_flow_people.navigation import navbar
-from ai_analsyis_flow_people.template import template
 
-# Content in a grid layout.
+from ai_analsyis_flow_people.components.navigation import navbar
+from ai_analsyis_flow_people.components.template import template
 
 
 def content_grid():
-    return rx.chakra.grid(
-        *[
-            rx.chakra.grid_item(stat_card(*c), col_span=1, row_span=1)
-            for c in stat_card_data
-        ],
-        rx.chakra.grid_item(
-            line_chart(data=line_chart_data, data_key="name", lines=lines),
-            col_span=3,
-            row_span=2,
-        ),
-        rx.chakra.grid_item(
-            pie_chart(data=pie_chart_data, data_key="value", name_key="name"),
-            row_span=2,
-            col_span=1,
-        ),
-        rx.chakra.grid_item(table(tabular_data=tabular_data), col_span=4, row_span=2),
-        rx.chakra.grid_item(
-            area_chart(data=area_chart_data, data_key="name", areas=areas),
-            col_span=3,
-            row_span=2,
-        ),
-        template_columns="repeat(4, 1fr)",
-        width="100%",
-        gap=4,
-        row_gap=8,
+    return rx.vstack(
+        rx.heading("Flujo de Análisis de IA para el Seguimiento de Personas"),
+        rx.text(
+            "El proyecto utiliza YOLOv8 para reconocer personas en imágenes en tiempo real. Además de reconocer "
+            "personas, el modelo también guarda el recorrido de cada individuo y predice su movimiento futuro. Para "
+            "proteger la privacidad de las personas, se utiliza YOLOv8-face para difuminar automáticamente las caras "
+            "detectadas en las imágenes."),
+        rx.text(
+            "Los datos generados por el reconocimiento de personas se almacenan en una base de datos MongoDB. Para "
+            "gestionar eficientemente la transferencia de datos entre el sistema de reconocimiento y la base de "
+            "datos, el proyecto hace uso de las colas de RabbitMQ. Las solicitudes de almacenamiento de datos se "
+            "encolan en RabbitMQ y luego son procesadas por Apache NiFi, que lee las colas de RabbitMQ y guarda los "
+            "datos en MongoDB. Además de guardar los datos en la base de datos, NiFi genera un archivo CSV y un "
+            "archivo JSON para su análisis posterior."),
+        rx.text(
+            "Además, el proyecto cuenta con dos dashboards para monitorear el rendimiento y las métricas tanto de "
+            "RabbitMQ como de MongoDB. Estos dashboards proporcionan una visión instantánea del estado de los "
+            "sistemas de mensajería y bases de datos, permitiendo una gestión más eficiente y efectiva de los "
+            "recursos.")
     )
 
 
 @template
 def index() -> rx.Component:
     return rx.box(
-            navbar(heading="AI & Big Data Project"),
-            rx.box(
-                content_grid(),
-                margin_top="calc(50px + 2em)",
-                padding="2em",
-            ),
-            padding_left="250px",
-        )
+        navbar(heading="AI & Big Data Project"),
+        rx.box(
+            content_grid(),
+            margin_top="calc(50px + 2em)",
+            padding="2em",
+        ),
+        padding_left="250px",
+    )

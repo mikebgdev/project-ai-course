@@ -285,11 +285,11 @@ async def run_detection(websocket):
 
     cap.release()
 
-
-async def main():
-    async with websockets.serve(run_detection, "localhost", 8772):
-        await asyncio.Future()
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+#
+# async def main():
+#     async with websockets.serve(run_detection, "localhost", 8767):
+#         await asyncio.Future()
+#
+#
+# if __name__ == "__main__":
+#     asyncio.run(main())

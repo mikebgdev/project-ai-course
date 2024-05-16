@@ -1,5 +1,3 @@
-"""The style classes and constants for the Dashboard App."""
-
 from reflex.components.radix import themes as rx
 
 THEME = rx.theme(
