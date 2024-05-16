@@ -1,5 +1,15 @@
 # AI Project - Team Arch Btw
 
+Web Reflex
+```console
+ reflex run
+```
+
+WebSocket
+```console
+python yolov8/websocket_server.py
+```
+
 ## Final Project: Person Detection and Pixelation Application using YOLOv8n
 
 This project was developed as part of the Specialization Course in Artificial Intelligence and Big Data
