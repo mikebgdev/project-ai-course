@@ -1,4 +1,3 @@
-import asyncio
 import json
 import base64
 import datetime
@@ -8,7 +7,6 @@ import pika
 from dotenv import load_dotenv
 import cv2
 import streamlink
-import websockets
 import numpy as np
 
 from collections import defaultdict
@@ -23,7 +21,7 @@ load_dotenv()
 
 
 class FaceDetector:
-    def __init__(self, model_path, device):
+    def __init__(self, model_path, device="cpu"):
         self.model = YOLO(model_path, task='detect').to(device)
         self.blur_ratio = 50
 
@@ -41,7 +39,7 @@ class FaceDetector:
 
 
 class PersonDetector:
-    def __init__(self, model_path, device):
+    def __init__(self, model_path, device="cpu"):
         self.model = YOLO(model_path).to(device)
         self.tracker = DeepSort(n_init=1, max_age=50)
         self.track_history_persons_to_show = defaultdict(lambda: [])
@@ -49,12 +47,15 @@ class PersonDetector:
         self.setup_rabbitmq_connection()
 
     def setup_rabbitmq_connection(self):
-        credentials = pika.PlainCredentials(os.getenv("RABBIT_USER"), os.getenv("RABBIT_PASSWORD"))
-        self.connection = pika.BlockingConnection(
-            pika.ConnectionParameters(os.getenv("RABBIT_HOST"), os.getenv("RABBIT_PORT"), credentials=credentials))
-        self.channel = self.connection.channel()
-        self.channel.queue_declare(queue='detected_persons')
-        self.channel.queue_declare(queue='track_history')
+        try:
+            credentials = pika.PlainCredentials(os.getenv("RABBIT_USER"), os.getenv("RABBIT_PASSWORD"))
+            self.connection = pika.BlockingConnection(
+                pika.ConnectionParameters(os.getenv("RABBIT_HOST"), os.getenv("RABBIT_PORT"), credentials=credentials))
+            self.channel = self.connection.channel()
+            self.channel.queue_declare(queue='detected_persons')
+            self.channel.queue_declare(queue='track_history')
+        except Exception as e:
+            print("Error conexion Rabbit:", e)
 
     def send_data_to_queue(self, data, queue_name):
         try:
@@ -284,12 +285,3 @@ async def run_detection(websocket):
         await websocket.send(json_data)
 
     cap.release()
-
-#
-# async def main():
-#     async with websockets.serve(run_detection, "localhost", 8767):
-#         await asyncio.Future()
-#
-#
-# if __name__ == "__main__":
-#     asyncio.run(main())
