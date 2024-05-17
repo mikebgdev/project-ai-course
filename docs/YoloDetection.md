@@ -1,3 +1,5 @@
+[//]: # (TODO)
+
 ## Archivo `websocket_server.py`
 
 Este archivo constituye el servidor WebSocket que facilita la comunicación en tiempo real con los clientes. Utiliza la biblioteca `websockets` para manejar las conexiones WebSocket y se encarga de iniciar la detección y el seguimiento de objetos.
