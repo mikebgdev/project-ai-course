@@ -265,9 +265,7 @@ data = {
 
 - **[Despligue del proyecto](docs/Despliegue.md)**
 
-- **[Detalles sobre la Detección de Personas](docs/DeteccionPersonas.md)**
-
-- **[Protección de Datos Personales con Difuminado de Rostros](docs/DifuminadoRostros.md)**
+- **[Detalles sobre websocket Yolo para detectar personas](docs/WebSocketYolo.md)**
 
 - **[Configuración y Uso de RabbitMQ y Apache NiFi](docs/RabbitNifi.md)**
 
