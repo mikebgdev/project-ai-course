@@ -1,17 +1,15 @@
-FROM python:3.11.2
-
-RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
-    && rm -rf /var/lib/apt/lists/*
+FROM python:3.11.5
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY . .
 
 RUN pip install -r requirements.txt
 
-COPY . .
+RUN apt-get update && apt-get install -y supervisor
 
-EXPOSE 5000
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+EXPOSE 3000 8000
+
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

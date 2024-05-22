@@ -250,8 +250,8 @@ def url_video():
 async def run_detection(websocket):
     device_cuda = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    face_detector = FaceDetector('models/yolov8n-face.pt', device_cuda)
-    person_detector = PersonDetector('models/yolov8n.pt', device_cuda)
+    face_detector = FaceDetector('yolov8/models/yolov8n-face.pt', device_cuda)
+    person_detector = PersonDetector('yolov8/models/yolov8n.pt', device_cuda)
 
     url = url_video()
     cap = cv2.VideoCapture(url)

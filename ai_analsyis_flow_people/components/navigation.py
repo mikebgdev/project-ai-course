@@ -32,7 +32,7 @@ def sidebar(
     *sidebar_links,
     **props,
 ) -> rx.Component:
-    logo_src = props.get("logo_src", "/logo.jpg")
+    logo_src = props.get("logo_src", "/logo.png")
     heading = props.get("heading", "NOT SET")
     return rx.vstack(
         rx.hstack(

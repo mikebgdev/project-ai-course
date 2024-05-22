@@ -91,10 +91,10 @@ data = {
   - [x] **Patrones de Movimiento y Trayectorias:** Analizar en tiempo real los patrones de movimiento y las trayectorias de las personas utilizando DeepSort y Yolov8. Este análisis puede identificar áreas de alta congestión y sugerir mejoras en la infraestructura urbana.
   - [ ] **Desarrollo de Modelos Predictivos:** Utilizar técnicas de aprendizaje automático para desarrollar modelos que anticipen las trayectorias de las personas basándose en los datos históricos. Esto puede ayudar a prever y mitigar problemas de congestión peatonal.
   - [ ] **Modelos:**
-    - [ ] **Clustering:** Identificar patrones de agrupación en el flujo peatonal para mejorar la planificación urbana.
+    - [x] **Clustering:** Identificar patrones de agrupación en el flujo peatonal para mejorar la planificación urbana.
     - [ ] **Series Temporales:** Analizar tendencias y patrones temporales en el movimiento de personas para anticipar cambios en el flujo peatonal.
     - [ ] **No Supervisado:** Descubrir patrones ocultos en los datos de seguimiento de personas sin la necesidad de etiquetas para comprender mejor el comportamiento urbano.
-    - [ ] **Clasificación:** Identificar diferentes categorías de comportamiento en el flujo peatonal para mejorar la segmentación y el análisis.
+    - [x] **Clasificación:** Identificar diferentes categorías de comportamiento en el flujo peatonal para mejorar la segmentación y el análisis.
     - [ ] **Regresión:** Predecir valores continuos relacionados con el flujo peatonal para mejorar la planificación y gestión urbana.
 
 
@@ -265,9 +265,7 @@ data = {
 
 - **[Despligue del proyecto](docs/Despliegue.md)**
 
-- **[Detalles sobre la Detección de Personas](docs/DeteccionPersonas.md)**
-
-- **[Protección de Datos Personales con Difuminado de Rostros](docs/DifuminadoRostros.md)**
+- **[Detalles sobre websocket Yolo para detectar personas](docs/WebSocketYolo.md)**
 
 - **[Configuración y Uso de RabbitMQ y Apache NiFi](docs/RabbitNifi.md)**
 

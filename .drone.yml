@@ -11,17 +11,9 @@ platform:
     os: linux
     arch: amd64
 
-clone:
-    disable: true
-
 steps:
-  - name: clone
-    image: plugins/git
-    settings:
-      depth: 50
-
   - name: install-dependencies
-    image: python:3.11.2
+    image: python:3.11.5
     commands:
       - pip install -r requirements.txt
 
