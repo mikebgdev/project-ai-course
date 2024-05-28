@@ -76,3 +76,40 @@ class DashboardRabbitMqState(rx.State):
                     print(f"Error fetching metrics: {e}")
 
                 await asyncio.sleep(5)  # Actualiza cada 5 segundos
+
+
+def prepare_data_stat_card():
+    return [
+        [
+            "Queues",
+            DashboardRabbitMqState.queues
+        ],
+        [
+            "Consumers",
+            DashboardRabbitMqState.consumers
+        ],
+        [
+            "Connections",
+            DashboardRabbitMqState.connections
+        ],
+        [
+            "Channels",
+            DashboardRabbitMqState.channels
+        ],
+        [
+            "Incoming messages",
+            DashboardRabbitMqState.incoming_messages
+        ],
+        [
+            "Outgoing messages",
+            DashboardRabbitMqState.outgoing_messages
+        ],
+        [
+            "Ready messages",
+            DashboardRabbitMqState.ready_messages
+        ],
+        [
+            "Unacknowledged messages",
+            DashboardRabbitMqState.unacknowledged_messages
+        ]
+    ]

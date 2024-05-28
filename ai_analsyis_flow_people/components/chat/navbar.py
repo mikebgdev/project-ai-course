@@ -1,5 +1,7 @@
 import reflex as rx
+
 from ai_analsyis_flow_people.components.chat.chat_state import ChatState
+
 
 def sidebar_chat(chat: str) -> rx.Component:
     """A sidebar chat item.
@@ -7,7 +9,7 @@ def sidebar_chat(chat: str) -> rx.Component:
     Args:
         chat: The chat item.
     """
-    return  rx.drawer.close(rx.hstack(
+    return rx.drawer.close(rx.hstack(
         rx.button(
             chat, on_click=lambda: ChatState.set_chat(chat), width="80%", variant="surface"
         ),
@@ -77,7 +79,7 @@ def modal(trigger) -> rx.Component:
     )
 
 
-def navbar():
+def navbar_old():
     return rx.box(
         rx.hstack(
             rx.hstack(
@@ -111,4 +113,22 @@ def navbar():
         top="0",
         z_index="1000",
         align_items="center",
+    )
+
+
+def navbar():
+    return rx.hstack(
+        rx.heading("Chat Arch btw"),
+        rx.spacer(),
+        modal(rx.button("+ New chat")),
+        sidebar(
+            rx.button(
+                rx.icon(
+                    tag="messages-square",
+                    color=rx.color("mauve", 12),
+                ),
+                background_color=rx.color("mauve", 6),
+            )
+        ),
+        id="navbar"
     )
