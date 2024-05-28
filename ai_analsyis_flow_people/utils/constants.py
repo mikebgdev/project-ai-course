@@ -17,3 +17,9 @@ MONGODB_PORT_API = os.getenv("MONGODB_PORT_API")
 MONGODB_API_URL = "http://" + MONGODB_HOST + ":" + MONGODB_PORT_API + "/api"
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+DOC_INDEX = "docs/Index.md"
+DOC_ALL = 'README.md'
+
+JSON_PERSONS = './notebooks/data/proyecto_ia_arch.persons.json'
+JSON_TRACKS = './notebooks/data/proyecto_ia_arch.tracks.json'

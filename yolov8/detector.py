@@ -199,7 +199,7 @@ class PersonDetector:
             self.save_person_database(track_id, start_time)
 
     def detect_persons(self, frame):
-        results = self.model.track(frame, persist=True, conf=0.5, verbose=False)
+        results = self.model.track(frame, persist=True, conf=0.1, verbose=False)
 
         for res in results:
             if res.boxes.id is not None:
@@ -251,7 +251,7 @@ async def run_detection(websocket):
     device_cuda = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     face_detector = FaceDetector('yolov8/models/yolov8n-face.pt', device_cuda)
-    person_detector = PersonDetector('yolov8/models/yolov8n.pt', device_cuda)
+    person_detector = PersonDetector('yolov8/models/yolov9c.pt', device_cuda)
 
     url = url_video()
     cap = cv2.VideoCapture(url)

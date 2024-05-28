@@ -1,6 +1,6 @@
 import reflex as rx
 
-from ai_analsyis_flow_people.components.styles import THEME, STYLESHEETS
+from ai_analsyis_flow_people.utils.styles import THEME, STYLESHEETS, STYLE
 
 from ai_analsyis_flow_people.pages.index import index
 from ai_analsyis_flow_people.pages.camera import camera
@@ -10,11 +10,10 @@ from ai_analsyis_flow_people.pages.rabbitmq import rabbitmq
 from ai_analsyis_flow_people.pages.bigdata import bigdata
 from ai_analsyis_flow_people.pages.documentation import documentation
 
-# Create app instance and add index page.
 app = rx.App(
     theme=THEME,
     stylesheets=STYLESHEETS,
-    # heigth="100vh"
+    style=STYLE
 )
 
 app.add_page(index, route="/")

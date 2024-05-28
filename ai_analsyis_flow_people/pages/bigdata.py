@@ -1,5 +1,4 @@
 import reflex as rx
-import json
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -7,12 +6,8 @@ import plotly.graph_objects as go
 from ai_analsyis_flow_people.components.navigation import navbar
 from ai_analsyis_flow_people.components.template import template
 from ai_analsyis_flow_people.components.graphs import stat_card
-
-
-def read_data_from_json(file_path):
-    with open(file_path, 'r') as file:
-        data = json.load(file)
-    return data
+from ai_analsyis_flow_people.utils.constants import JSON_TRACKS, JSON_PERSONS
+from ai_analsyis_flow_people.utils.json import read_data_from_json
 
 
 def process_data_track(data_list):
@@ -29,13 +24,10 @@ def process_data_track(data_list):
     return df
 
 
-persons_file = './notebooks/data/proyecto_ia_arch.persons.json'
-tracks_file = './notebooks/data/proyecto_ia_arch.tracks.json'
-
-data_person_list = read_data_from_json(persons_file)
+data_person_list = read_data_from_json(JSON_PERSONS)
 processed_person_df = pd.DataFrame(data_person_list)
 
-data_track_list = read_data_from_json(tracks_file)
+data_track_list = read_data_from_json(JSON_TRACKS)
 processed_track_df = process_data_track(data_track_list)
 
 
@@ -156,7 +148,6 @@ def content_grid():
             row_span=2,
         ),
         template_columns="repeat(6, 1fr)",
-        width="100%",
         gap=6,
         row_gap=8,
     )
@@ -168,10 +159,7 @@ def bigdata() -> rx.Component:
         navbar(heading="Dashboard Big Data"),
         rx.box(
             content_grid(),
-            background_color=rx.color("mauve", 2),
-            padding="2em",
-            min_height="calc(100vh - calc(50px + 2em))",
+            class_name="content"
         ),
-        padding_top="calc(50px + 2em)",
-        padding_left="250px",
+        class_name="page"
     )
