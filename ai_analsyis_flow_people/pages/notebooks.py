@@ -18,7 +18,9 @@ def content():
             )
         ),
         rx.section(
-            rx.heading("Clustering", level=1),
+            rx.heading(
+                "Clustering: Identificar patrones de agrupación en el flujo peatonal para mejorar la planificación urbana.",
+                level=1),
             rx.section(
                 rx.heading("K-Means Clustering", level=2),
                 rx.hstack(
@@ -35,10 +37,12 @@ def content():
                     spacing="2",
                 ),
                 rx.text("Silhouette Score para DBSCAN: 0.6451")
-            ),
+            )
         ),
         rx.section(
-            rx.heading("Classification", level=1),
+            rx.heading(
+                "Classification: Identificar diferentes categorías de comportamiento en el flujo peatonal para mejorar la segmentación y el análisis.",
+                level=1),
             rx.section(
                 rx.heading("Árbol de Decisión", level=2),
                 rx.hstack(
@@ -55,6 +59,42 @@ def content():
                 ),
                 rx.text("Accuracy del Bosque Aleatorio: 0.95")
             ),
+        ),
+        rx.section(
+            rx.heading(
+                "Regresión: Predecir valores continuos relacionados con el flujo peatonal para mejorar la planificación y gestión urbana.",
+                level=1),
+            rx.section(
+                rx.heading("Regresión Lineal", level=2),
+                rx.hstack(
+                    rx.image(src="/img/modelos/regresion_linea.png", alt="Regression Linea", width="auto",
+                             max_width="100%"),
+                    spacing="2",
+                )
+            ),
+            rx.section(
+                rx.heading("Regresión Polinómica", level=2),
+                rx.hstack(
+                    rx.image(src="/img/modelos/regresion_poly.png", alt="Regression Ploy", width="auto",
+                             max_width="50%"),
+                    spacing="2",
+                )
+            ),
+            rx.section(
+                rx.heading("Results", level=2),
+                rx.vstack(
+                    rx.image(src="/img/modelos/regresion_r2.png", alt="Regression R2", width="auto", max_width="50%"),
+                    rx.image(src="/img/modelos/regresion_mse.png", alt="Regression MS2", width="auto", max_width="50%"),
+                    spacing="2",
+                )
+            ),
+        ),
+        rx.section(
+            rx.heading("Análisis de resultados", level=1),
+            rx.text(
+                "De todos los modelos realizados y con los datos disponibles, el único que resulta útil por el "
+                "momento es el de clustering. Este modelo nos permite identificar dónde se agrupa la gente, "
+                "facilitando así el análisis de patrones de comportamiento.")
         ),
         class_name="content"
     )

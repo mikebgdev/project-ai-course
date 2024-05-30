@@ -49,10 +49,12 @@ dashboard_sidebar = sidebar(
     sidebar_link(text="Home", href="/", icon="home"),
     sidebar_link(text="Live Camera", href="/camera", icon="camera"),
     sidebar_link(text="Chaty", href="/chaty", icon="message-square"),
+    sidebar_link(text="Azure", href="/azure", icon="database"),
     sidebar_link(text="AI Results Notebooks", href="/notebooks", icon="notebook"),
     sidebar_link(text="Dashboard RabbitMQ", href="/rabbitmq", icon="layout-dashboard"),
     sidebar_link(text="Dashboard BigData", href="/bigdata", icon="layout-dashboard"),
     sidebar_link(text="Documentation", href="/documentation", icon="book-check"),
+    sidebar_link(text="Conclusions", href="/conclusions", icon="list-end"),
     logo_src="/favicon.ico",
     heading="Project AI",
 )
