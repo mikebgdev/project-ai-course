@@ -9,6 +9,8 @@ from ai_analsyis_flow_people.pages.notebooks import notebooks
 from ai_analsyis_flow_people.pages.rabbitmq import rabbitmq
 from ai_analsyis_flow_people.pages.bigdata import bigdata
 from ai_analsyis_flow_people.pages.documentation import documentation
+from ai_analsyis_flow_people.pages.conclusions import conclusions
+from ai_analsyis_flow_people.pages.azure import azure
 
 app = rx.App(
     theme=THEME,
@@ -23,3 +25,5 @@ app.add_page(notebooks, route="/notebooks")
 app.add_page(rabbitmq, route="/rabbitmq")
 app.add_page(bigdata, route="/bigdata")
 app.add_page(documentation, route="/documentation")
+app.add_page(conclusions, route="/conclusions")
+app.add_page(azure, route="/azure")

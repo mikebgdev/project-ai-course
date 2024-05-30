@@ -186,5 +186,3 @@ en la clasificación de las pistas, lo que puede ser útil para comprender mejor
 Sin embargo, hay margen para mejorar, especialmente explorando ajustes adicionales de hiperparámetros y métricas de
 evaluación más exhaustivas.
 
-
-[//]: # (TODO)

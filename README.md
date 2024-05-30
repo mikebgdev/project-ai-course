@@ -1,5 +1,7 @@
 # Proyecto: Análisis de flujo peatonal
 
+[![Build Status](https://drone.perrocarril.com/api/badges/sergio/project-ai-arch/status.svg)](https://drone.perrocarril.com/sergio/project-ai-arch)
+
 ## Índice de Contenidos
 1. [Introducción](#1-introducción)
    1. [Descripción del Problema](#11-descripción-del-problema)
@@ -95,7 +97,7 @@ data = {
     - [ ] **Series Temporales:** Analizar tendencias y patrones temporales en el movimiento de personas para anticipar cambios en el flujo peatonal.
     - [ ] **No Supervisado:** Descubrir patrones ocultos en los datos de seguimiento de personas sin la necesidad de etiquetas para comprender mejor el comportamiento urbano.
     - [x] **Clasificación:** Identificar diferentes categorías de comportamiento en el flujo peatonal para mejorar la segmentación y el análisis.
-    - [ ] **Regresión:** Predecir valores continuos relacionados con el flujo peatonal para mejorar la planificación y gestión urbana.
+    - [x] **Regresión:** Predecir valores continuos relacionados con el flujo peatonal para mejorar la planificación y gestión urbana.
 
 
 
@@ -167,7 +169,6 @@ data = {
 - **Resultados Obtenidos:**
   - La implementación de YOLOv8 y DeepSort logró una detección y seguimiento precisos de personas en diferentes entornos urbanos. La privacidad de los individuos fue protegida eficientemente mediante el difuminado de rostros.
   - El sistema de almacenamiento basado en Azure y MongoDB permitió una gestión estructurada y escalable de los datos.
-  - [//]: # (TODO - [ ] Los reportes y visualizaciones generados mediante PowerBI, o dashboard, facilitaron análisis detallados del flujo peatonal, proporcionando información valiosa para la toma de decisiones sobre la infraestructura urbana.)
 
 
 ## 5. Limitaciones del Proyecto y Sugerencias de Mejora
@@ -192,25 +193,25 @@ data = {
 - **Contar el Número de Personas que Entran y Salen:**
    - **Mejora Propuesta:** Implementar un sistema de conteo de personas que entran y salen de áreas específicas, utilizando modelos de detección y seguimiento mejorados para identificar las entradas y salidas de personas en tiempo real.
 
-        ![contar](docs/img/contar.gif)
+        ![contar](/docs/img/contar.gif)
 
 
 - **Detección de Agrupaciones de Gente:**
    - **Mejora Propuesta:** Desarrollar algoritmos que identifiquen y analicen la formación de agrupaciones de personas, lo cual puede ser útil para gestionar eventos públicos y responder a emergencias.
 
-        ![agrupaciones](docs/img/agrupaciones.gif)
+        ![agrupaciones](/docs/img/agrupaciones.gif)
 
 
 - **Detección de Colas:**
    - **Mejora Propuesta:** Implementar técnicas de visión por computadora para detectar y analizar la formación de colas en tiempo real, ayudando a mejorar la gestión del espacio y reducir los tiempos de espera.
 
-        ![colas](docs/img/colas.jpg)
+        ![colas](/docs/img/colas.jpg)
 
 
 - **Implementación de Heatmaps:**
    - **Mejora Propuesta:** Añadir la funcionalidad de generar mapas de calor (heatmaps) para visualizar las áreas de mayor concentración de personas y patrones de movimiento, lo que facilitaría la toma de decisiones en la planificación urbana.
 
-        ![heatmap](docs/img/heatmap.png)
+        ![heatmap](/docs/img/heatmap.png)
 
 - **Mejora de los Algoritmos Utilizados:**
    - **Mejora Propuesta:** Investigar y aplicar versiones más avanzadas de YOLO (como YOLOv8) y explorar otros algoritmos de seguimiento más sofisticados para mejorar la precisión y eficiencia del sistema.
@@ -246,7 +247,7 @@ data = {
 
 ### 6.3. Cómo se Han Abordado las Limitaciones
 - **Optimización del Código:**
-   - **Mejora de Funciones de Detección y Seguimiento: Se han optimizado las funciones utilizadas para detectar personas y mantener un seguimiento continuo de las mismas, mejorando así la eficiencia del sistema sin necesidad de modificar el algoritmo base.
+   - **Mejora de Funciones de Detección y Seguimiento:** Se han optimizado las funciones utilizadas para detectar personas y mantener un seguimiento continuo de las mismas, mejorando así la eficiencia del sistema sin necesidad de modificar el algoritmo base.
 
 
 - **Entrenamiento de Modelos:**

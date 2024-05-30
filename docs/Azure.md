@@ -2,7 +2,8 @@
 
 ## Creación del Data Factory
 
-![factory.png](img/azure/factory.png)
+![factory.png](/img/azure/factory.png)
+
 
 ## Creación de una cuenta de almacenamiento (Storage Account)
 
@@ -10,11 +11,13 @@ En este paso, creamos una cuenta de almacenamiento en Azure para almacenar nuest
 cargar. Esta cuenta de almacenamiento actúa como un contenedor seguro para nuestros datos, accesible desde cualquier
 lugar.
 
-![container.png](img/azure/container.png)
+![container.png](/img/azure/container.png)
+
 
 ## Creación de una base de datos SQL de Azure
 
-![sql.png](img/azure/sql.png)
+![sql.png](/img/azure/sql.png)
+
 
 ## Subida de un archivo CSV desde Python
 
@@ -40,28 +43,35 @@ with open(csv_file_path, "rb") as data:
 
 ```
 
-![update.png](img/azure/update.png)
+![update.png](/img/azure/update.png)
+
 
 ## Creación de un pipeline en el Data Factory
 
-![pipeline.png](img/azure/pipeline.png)
+![pipeline.png](/img/azure/pipeline.png)
+
 
 ### Origen: CSV almacenado en el Storage
 
-![origen.png](img/azure/origen.png)
+![origen.png](/img/azure/origen.png)
+
 
 ### Destino: Base de datos SQL de Azure
 
-![destino.png](img/azure/destino.png)
+![destino.png](/img/azure/destino.png)
+
 
 ### Ejecución del pipeline
 
-![ejecucion.png](img/azure/ejecucion.png)
+![ejecucion.png](/img/azure/ejecucion.png)
+
 
 ### Resultado
 
-![resultado.png](img/azure/resultados.png)
+![resultado.png](/img/azure/resultados.png)
 
+
+<br>
 ## Definición JSON del pipeline
 
 En este JSON, definimos un pipeline en Azure Data Factory para copiar datos del CSV al SQL de Azure. Este pipeline
